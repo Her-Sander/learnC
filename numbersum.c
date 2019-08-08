@@ -21,7 +21,7 @@ int numbersum(int a, int n)
 
 int main() 
 {
-	printf("%d", numbersum(2, 3));
+	printf("%d", numbersum(2, 3));//这里测试给的2和3,可以根据自己需要改变参数
 	system("pause");
 	return 0;
 }
