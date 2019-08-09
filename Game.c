@@ -1,155 +1,159 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 int Menu() {
-	printf("=====================\n");
-	printf("    1. 开始游戏\n");
-	printf("    0. 结束游戏\n");
-	printf("=====================\n");
-	printf(" 请输入您的选择: \n");
+	printf("=================\n");
+	printf("   1.开始游戏\n");
+	printf("   0.结束游戏\n");
+	printf("=================\n");
+	printf("请输入您的选择: ");
 	int choice = 0;
-	scanf("%d",&choice);
+	scanf("%d", &choice);
 	return choice;
 }
-#define MAX_ROW 3
-#define MAX_COL 3 
 
-char chess_board[MAX_ROW][MAX_COL];
+#define MAX_ROW 9
+#define MAX_COL 9
+#define MINE_COUNT 10
 
-void Init() {
-	for (int row = 0; row < MAX_ROW; ++row) {
-		for (int col = 0; col < MAX_COL; ++col) {
-			chess_board[row][col] = ' ';
+void Init(char show_map[MAX_ROW][MAX_COL], char mine_map[MAX_ROW][MAX_COL]) {
+	//1.对于show_map,需要设为*
+	for (int row = 0; row < MAX_ROW; row++) {
+		for (int col = 0; col < MAX_COL; col++) {
+			show_map[row][col] = '*';
 		}
 	}
-	//设置随机种子
-	srand((unsigned int)time(0));
-}
-
-void Print() {
-	for (int row = 0; row < MAX_ROW; ++row) {
-		printf("| %c | %c | %c |\n", chess_board[row][0],
-			chess_board[row][1], chess_board[row][2]);
-		if (row != MAX_ROW - 1) {
-			printf("|---|---|---|\n");
+	//2.对于mine_map,需要随机生成若干个地雷,使用0不是地雷,使用1是地雷
+	for (int row = 0; row < MAX_ROW; row++) {
+		for (int col = 0; col < MAX_COL; col++) {
+			mine_map[row][col] = '0';
 		}
 	}
-	//调试程序临时加的.最好加一个统一等个的注释
-	//TODO
-	//system("pause");
-}
-void PlayerMove() {
-	printf("玩家落子!\n");
-
-	while (1) {
-		printf("请输入落子位置的坐标(row col): ");
-		int row = 0;
-		int col = 0;
-		scanf("%d %d", &row, &col);
-		//检查用户输入坐标是否合法
-		if (row < 0 || row >= MAX_ROW || col < 0 || col >=  MAX_COL) {
-			printf("您输入的坐标非法!请重新输入!\n");
+	int n = MINE_COUNT;
+	while (n > 0) {
+		//生成一组坐标
+		int row = rand() % MAX_ROW;
+		int col = rand() % MAX_COL;
+		if (mine_map[row][col] == '1') {
+			//该位置已经是地雷,需要重新生成
 			continue;
 		}
-		if (chess_board[row][col] != ' ') {
-			printf("您要落子的位置已经被占用了!\n");
-			continue;
-		}
-		chess_board[row][col] = 'x';
-		break;
-	}
-	printf("玩家落子完毕!\n");
-}
-void ComputerMove() {
-	printf("电脑落子!\n");
-	while (1) {
-		int row = rand() % 3;
-	    int col = rand() % 3;
-	if (chess_board[row][col] != ' ') {
-		continue;
-	}
-	chess_board[row][col] = 'o';
-	break;
-}
-	printf("电脑落子完毕!\n");
-}
-//如果棋盘满了返回1,否则返回0
-int IsFull() {
-	for (int row = 0; row < MAX_ROW; ++row) {
-		for (int col = 0; col < MAX_COL; ++col) {
-			if (chess_board[row][col] == ' ') {
-				return 0;
-			}
-		}
+		mine_map[row][col] = '1';
+		--n;
 	}
 }
-//用返回值表示胜利者是谁
-//x 玩家胜
-//o 电脑胜
-//q 和棋
-//' '胜负未分
-char CheckWinner() {
-	//检查左右行列对角线是否连成一条线
-	for (int row = 0; row < MAX_ROW; ++row) {
-		if (chess_board[row][0] == chess_board[row][1]
-			&& chess_board[row][1] == chess_board[row][2]) {
-			return chess_board[row][0];
-		}
-	}
+
+void PrintMap(char map[MAX_ROW][MAX_COL]) {
+	//不光打印地图,还能带坐标
+	//先打印第一行
+	printf("    ");
 	for (int col = 0; col < MAX_COL; ++col) {
-		if (chess_board[0][col] == chess_board[1][col]
-			&& chess_board[0][col] == chess_board[2][col]) {
-			return chess_board[0][col];
+		printf("%d ", col);
+	}
+	printf("\n");
+	//打印一个分割线
+	for (int col = 0; col < MAX_COL - 2; ++col) {
+		printf("---");
+	}
+	printf("\n");
+	//再打印其他行
+	for (int row = 0; row < MAX_ROW; ++row) {
+		printf(" %d| ",row);
+	//打印本行的每一列
+		for (int col = 0; col < MAX_COL; ++col) {
+			printf("%c ", map[row][col]);
 		}
+		printf("\n");
 	}
-	if (chess_board[0][0] == chess_board[1][1]
-		&& chess_board[0][0] == chess_board[2][2]) {
-		return chess_board[0][0];
+}
+
+void UpdateShowMap(int row, int col, char show_map[MAX_ROW][MAX_COL],
+	char mine_map[MAX_ROW][MAX_COL]) {
+	//根据当前位置来判定这个位置的周围8个格子有几个地雷,
+	//并且将这个数字更新到shop_map中
+	int count = 0;
+	if (row - 1 >= 0 && col - 1 >= 0 && mine_map[row - 1][col - 1] == '1'
+		&& row - 1 < MAX_ROW && col - 1 < MAX_COL) {
+		++count;
+	}	
+	if (row - 1 >= 0 && col >= 0 && mine_map[row - 1][col] == '1'
+		&& row - 1 < MAX_ROW && col < MAX_COL) {
+		++count;
 	}
-	if (chess_board[0][2] == chess_board[1][1]
-		&& chess_board[0][2] == chess_board[2][0]) {
-		return chess_board[0][2];
+	if (row - 1 >= 0 && col + 1 >= 0 && mine_map[row - 1][col + 1] == '1'
+		&& row - 1 < MAX_ROW && col + 1 < MAX_COL) {
+		++count;
 	}
-	if (IsFull()) {
-		return 'q';
+	if (row >= 0 && col - 1 >= 0 && mine_map[row][col - 1] == '1'
+		&& row < MAX_ROW && col - 1 < MAX_COL) {
+		++count;
 	}
-	return ' ';
+	if (row >= 0 && col + 1 >= 0 && mine_map[row][col + 1] == '1'
+		&& row < MAX_ROW && col + 1 < MAX_COL) {
+		++count;
+	}
+	if (row + 1 >= 0 && col - 1 >= 0 && mine_map[row + 1][col - 1] == '1'
+		&& row + 1 < MAX_ROW && col - 1 < MAX_COL) {
+		++count;
+	}
+	if (row + 1 >= 0 && col >= 0 && mine_map[row + 1][col] == '1'
+		&& row + 1 < MAX_ROW && col < MAX_COL) {
+		++count;
+	}
+	if (row + 1 >= 0 && col + 1 >= 0 && mine_map[row + 1][col + 1] == '1'
+		&& row + 1 < MAX_ROW && col +1 < MAX_COL) {
+		++count;
+	}
+	//得到了周围八个格子中地雷的个数
+	//假设count为2,实际看到的是字符2,'2'也就是ASCII中的42
+	show_map[row][col] = '0' + count;
 }
 
 void Game() {
-	Init();
-	char winner = ' ';
+	//1.先创建地图,并初始化
+	char show_map[MAX_ROW][MAX_COL];
+	char mine_map[MAX_ROW][MAX_COL];
+	//已经翻开的空格的个数(非地雷)
+	int blank_count_already_show = 0;
+	Init(show_map, mine_map);
 	while (1) {
-		Print();
-		PlayerMove();
-		
-		winner = CheckWinner();
-		if (winner != ' ') {
+	    //2.打印地图;
+		PrintMap(show_map);
+		//TODO打印为了调试临时加的
+		PrintMap(mine_map);
+		//3.让用户输入坐标并检查合法性
+		printf("请输入一组坐标(row col):");
+		int row = 0;
+		int col = 0;
+		scanf("%d %d", &row, &col);
+		//在这里清屏,清掉之前打印的内容
+		system("cls");
+		if (row < 0 || row >= MAX_ROW || col < 0 || col >= MAX_COL) {
+			printf("您的输入非法!请重新输入!\n");
+			continue;
+		}
+		if (show_map[row][col] != '*') {
+			printf("您输入的位置已经翻开了!\n");
+			continue;
+		}
+		//4.判定是否是地雷
+		if (mine_map[row][col] == '1') {
+			printf("游戏结束!\n");
+			PrintMap(mine_map);
 			break;
 		}
-		ComputerMove();
-		winner = CheckWinner();
-		if (winner != ' ') {
+		//5.判定游戏是否胜利,判断所有非地雷位置都被翻开了
+		++blank_count_already_show;
+		if (blank_count_already_show == MAX_COL * MAX_COL - MINE_COUNT) {
+			printf("游戏胜利!\n");
+			PrintMap(mine_map);
 			break;
 		}
-	}
-	Print();
-	if (winner == 'x') {
-		printf("您赢了!\n");
-	}
-	else if (winner == 'o') {
-		printf("您真菜,连电脑都下不过!\n");
-	}
-	else if (winner == 'q') {
-		printf("您和电脑五五开!\n");
-	}
-	else {
-		printf("电脑好像bug了!\n");
+		//6.统计当前位置周围雷的个数
+		UpdateShowMap(row, col, show_map, mine_map);
 	}
 }
-
 int main() {
 	while (1) {
 		int choice = Menu();
@@ -164,6 +168,7 @@ int main() {
 			printf("您的输入有误!\n");
 		}
 	}
+
 	system("pause");
 	return 0;
 }
