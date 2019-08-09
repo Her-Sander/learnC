@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//ÊıÎ»±éÀúÕı³£º¯Êı
+//æ•°ä½éå†æ­£å¸¸å‡½æ•°
 
 void digit(int n)
 {
@@ -14,16 +14,16 @@ void digit(int n)
 	}
 }
 
-//µİ¹éµÄÊıÎ»±éÀú
+//é€’å½’çš„æ•°ä½éå†
 void digit1(int n)
 {
 	if (n == 0)
 	{
 		 return;
 	}
-	//printf("%d ", n % 10);//µ¹×Å´òÓ¡Î»Êı  ÏÈ´òÓ¡ ÔÙ·µ»Ø
+	//printf("%d ", n % 10);//å€’ç€æ‰“å°ä½æ•°  å…ˆæ‰“å° å†è¿”å›
 	digit1(n / 10);
-	printf("%d ", n % 10);//Ë³×Å´òÓ¡Î»Êı    ±ß·µ»Ø±ß´òÓ¡
+	printf("%d ", n % 10);//é¡ºç€æ‰“å°ä½æ•°    è¾¹è¿”å›è¾¹æ‰“å°
 	/*
 	if(n>9)
 	{
@@ -33,7 +33,7 @@ void digit1(int n)
 	*/
 }
 
-//µİ¹éµÄÊıµÄÃ¿Ò»Î»ºÍ
+//é€’å½’çš„æ•°çš„æ¯ä¸€ä½å’Œ
 
 int digitsum(int n)
 {
@@ -44,14 +44,14 @@ int digitsum(int n)
 	return n % 10 + digitsum(n / 10);
 }
 
-void digit2(int n,int m)//n±íÊ¾ÊäÈëµÄÊı,m±íÊ¾Òª×ª»»µÄ½øÖÆ
+void digit2(int n,int m)//nè¡¨ç¤ºè¾“å…¥çš„æ•°,mè¡¨ç¤ºè¦è½¬æ¢çš„è¿›åˆ¶
 {
 	if (n == 0)
 	{
 		return;
 	}
 	digit2(n / m , m);
-	putchar("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[n % m]);//36ÒÔÏÂµÄ½ûÖ¹¶¼¿ÉÒÔ×ª»»
+	putchar("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[n % m]);//36ä»¥ä¸‹çš„è¿›åˆ¶éƒ½å¯ä»¥è½¬æ¢
 }
 
 int main()
