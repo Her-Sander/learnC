@@ -1,0 +1,2 @@
+#TargetFrameworkVersion=v4.0:PlatformToolSet=v141:EnableManagedIncrementalBuild=false:VCToolArchitecture=Native32Bit:WindowsTargetPlatformVersion=10.0.17763.0
+Debug|Win32|D:\C语言\找出一组数中出现一次的数,其他均成对出现\|
