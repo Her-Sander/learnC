@@ -14,7 +14,7 @@ void printArray(int * arr, int n)
 
 int OddFront()
 {
-	int a[8] = { 1, 1, 3, 3, 5, 5, 7, 7 };
+	int a[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 	int size = 8;
 	int * front = a;
 	int * end = a + size - 1;
